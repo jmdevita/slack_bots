@@ -7,7 +7,7 @@ support_client = WebClient(token=os.environ["SUPPORT_BOT_TOKEN"])
 support_bot_flow = Blueprint('support_bot_flow', __name__)
 
 # Import Googlesheets API
-from googleauthentication import googlesheets_append, googlesheets_read
+from googleauthentication import googlesheets_append, googlesheets_read, googlesheets_clear, googlesheets_write
 
 # Definitions
 def is_request_valid(request):
@@ -19,7 +19,7 @@ def is_request_valid(request):
 googlesheets_id = os.environ['GOOGLESHEETS_ID']
 
 def step_1_import(event_ts, response_metadata):
-    #googlesheets_append(googlesheets_id, 'database!A2:G', [event_ts, 1, None, response_metadata["messages"][0]["text"], None, None])
+    googlesheets_append(googlesheets_id, 'database!A2:G', [event_ts, 1, None, response_metadata["messages"][0]["text"], None, None])
     pass
     #Need to have a comprehensive way to input into database
 def step_1_response(event_channel, event_ts):
@@ -118,9 +118,14 @@ def interactive():
 
     if payload['type'] == 'block_actions' and payload['actions'][0]['action_id'] == 'found-answer':
         button = "Found an Answer"
+        origin_ts = payload['container']['message_ts']
+        conversationIDs = googlesheets_read(googlesheets_id, 'database!A2:A')
+        location_id = conversationIDs.index(origin_ts)
+        googlesheets_clear(googlesheets_id,'E{location}'.format(location=location_id+1))
+        googlesheets_write(googlesheets_id,'E{location}'.format(location=location_id+1), 'yes')
         support_client.chat_update(
             channel=payload['channel']['id'],
-            ts=payload['container']['message_ts'],
+            ts=origin_ts,
             text = "Hey there! Have you checked these resources?",
             blocks = [
                 {
@@ -278,7 +283,6 @@ def interactive():
             message_template['value'] = name.replace(' ', '_')
             message_block[2]['element']['options'].append(message_template)
     
-
         support_client.chat_update(
             channel=payload['channel']['id'],
             ts=payload['container']['message_ts'],
@@ -334,7 +338,13 @@ def interactive():
             names.append(row[0])
             ids.append(row[1])
 
-        product_owner_id = ids[names.index(po_names[features.index('WELL Core Analytics')])]
+        product_owner_id = ids[names.index(po_names[features.index(product_feature)])]
+
+        po_name = po_names[features.index(product_feature)]
+        conversationIDs = googlesheets_read(googlesheets_id, 'database!A2:A')
+        location_id = conversationIDs.index(payload['container']['message_ts'])
+        googlesheets_clear(googlesheets_id,'F{location}:G{location}'.format(location=location_id+1))    
+        googlesheets_write(googlesheets_id,'G{location}:G{location}'.format(location=location_id+1), [product_feature, po_name])
 
         support_client.chat_update(
             channel=payload['channel']['id'],
@@ -412,10 +422,13 @@ def interactive():
             ]
             )
         else:
+            conversationIDs = googlesheets_read(googlesheets_id, 'database!A2:A')
+            location_id = conversationIDs.index(payload['container']['message_ts'])
+            googlesheets_clear(googlesheets_id,'F{location}:G{location}'.format(location=location_id+1))
             support_client.chat_postMessage(
                 channel=payload['channel']['id'],
                 thread_ts = payload['container']['thread_ts'],
-                text = "No product owner was found for this feature.".format(product_owner=product_owner_id)
+                text = "No product owner was found for this feature."
             )
         return make_response("Pinged Owner", 200, {"X-Slack-No-Retry": 1})
 

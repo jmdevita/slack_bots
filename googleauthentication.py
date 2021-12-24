@@ -99,3 +99,20 @@ def googlesheets_clear(spreadsheetId=SAMPLE_SPREADSHEET_ID, rangeId="*"):
 
     result = service.spreadsheets().values().clear(spreadsheetId=spreadsheetId,
                                 range=rangeId).execute()
+
+def googlesheets_write(spreadsheetId=SAMPLE_SPREADSHEET_ID,rangeId=SAMPLE_RANGE_NAME, cell_value="Updated"):
+    service = build('sheets', 'v4', credentials=creds)
+
+    # Call the Sheets API
+    values = [
+        [
+            cell_value
+        ],
+        # Additional rows ...
+    ]
+    body = {
+        'values': values
+    }
+    result = service.spreadsheets().values().update(
+        spreadsheetId=spreadsheetId, range=rangeId,
+        valueInputOption="USER_ENTERED", body=body).execute()
