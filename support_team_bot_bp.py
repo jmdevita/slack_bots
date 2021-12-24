@@ -19,7 +19,7 @@ def is_request_valid(request):
 googlesheets_id = os.environ['GOOGLESHEETS_ID']
 
 def step_1_import(event_ts, response_metadata):
-    googlesheets_append(googlesheets_id, 'database!A2:G', [event_ts, 1, None, response_metadata["messages"][0]["text"], None, None])
+    googlesheets_append(googlesheets_id, 'database!A2:H', [event_ts, 1, None, response_metadata["messages"][0]["text"], None, None, None])
     pass
     #Need to have a comprehensive way to input into database
 def step_1_response(event_channel, event_ts):
@@ -121,8 +121,8 @@ def interactive():
         origin_ts = payload['container']['message_ts']
         conversationIDs = googlesheets_read(googlesheets_id, 'database!A2:A')
         location_id = conversationIDs.index(origin_ts)
-        googlesheets_clear(googlesheets_id,'E{location}'.format(location=location_id+1))
-        googlesheets_write(googlesheets_id,'E{location}'.format(location=location_id+1), 'yes')
+        googlesheets_clear(googlesheets_id,'database!E{location}'.format(location=location_id+1))
+        googlesheets_write(googlesheets_id,'database!E{location}'.format(location=location_id+1), 'yes')
         support_client.chat_update(
             channel=payload['channel']['id'],
             ts=origin_ts,
@@ -343,8 +343,8 @@ def interactive():
         po_name = po_names[features.index(product_feature)]
         conversationIDs = googlesheets_read(googlesheets_id, 'database!A2:A')
         location_id = conversationIDs.index(payload['container']['message_ts'])
-        googlesheets_clear(googlesheets_id,'F{location}:G{location}'.format(location=location_id+1))    
-        googlesheets_write(googlesheets_id,'G{location}:G{location}'.format(location=location_id+1), [product_feature, po_name])
+        googlesheets_clear(googlesheets_id,'database!F{location}:G{location}'.format(location=location_id+1))
+        googlesheets_append(googlesheets_id, 'database!F{location}:G{location}', [product_feature, po_name]) 
 
         support_client.chat_update(
             channel=payload['channel']['id'],
@@ -436,6 +436,12 @@ def interactive():
         #Update googlesheet here
         user_id = payload['user']['id']
         message_payload = payload['state']['values']['question_answer']['plain_text_input-action']['value']
+
+        conversationIDs = googlesheets_read(googlesheets_id, 'database!A2:A')
+        location_id = conversationIDs.index(payload['container']['message_ts'])
+        googlesheets_clear(googlesheets_id,'database!H{location}'.format(location=location_id+1))    
+        googlesheets_write(googlesheets_id,'database!H{location}'.format(location=location_id+1), message_payload)
+
         support_client.chat_update(
             channel=payload['channel']['id'],
             ts=payload['container']['message_ts'],
