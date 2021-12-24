@@ -69,7 +69,7 @@ def googlesheets_append(spreadsheetId=SAMPLE_SPREADSHEET_ID,range=SAMPLE_RANGE_N
         'values': values
     }
 
-    request = service.spreadsheets().values().append(spreadsheetId=spreadsheetId, range=range, valueInputOption= "RAW", insertDataOption="INSERT_ROWS", body=body)
+    request = service.spreadsheets().values().append(spreadsheetId=spreadsheetId, range=range, valueInputOption= "USER_ENTERED", insertDataOption="INSERT_ROWS", body=body)
     response = request.execute()
 
     return response

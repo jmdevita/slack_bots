@@ -7,7 +7,7 @@ support_client = WebClient(token=os.environ["SUPPORT_BOT_TOKEN"])
 support_bot_flow = Blueprint('support_bot_flow', __name__)
 
 # Import Googlesheets API
-from googleauthentication import googlesheets_append, googlesheets_read, googlesheets_clear, googlesheets_write
+from googleauthentication import googlesheets_append, googlesheets_massupdate, googlesheets_read, googlesheets_clear, googlesheets_write
 
 # Definitions
 def is_request_valid(request):
@@ -61,6 +61,18 @@ def step_1_response(event_channel, event_ts):
         ]
     )
 
+def flatten_list(_2d_list):
+    flat_list = []
+    # Iterate through the outer list
+    for element in _2d_list:
+        if type(element) is list:
+            # If the element is of type list, iterate through the sublist
+            for item in element:
+                flat_list.append(item)
+        else:
+            flat_list.append(element)
+    return flat_list
+
 # Slack Setup
 #Event Handler
 
@@ -87,7 +99,6 @@ def slack_events():
         except KeyError:
             event_ts_2 = event["thread_ts"]
         event_channel=event["channel"]
-        event_message = event["text"]
 
         # Need to read googlesheet everytime for step
         goo_table = googlesheets_read(googlesheets_id, 'database!A1:G')
@@ -115,17 +126,16 @@ def slack_events():
 @support_bot_flow.route('/support/interactive', methods = ["POST"])
 def interactive():
     payload = json.loads(request.form['payload'])
-
     if payload['type'] == 'block_actions' and payload['actions'][0]['action_id'] == 'found-answer':
         button = "Found an Answer"
-        origin_ts = payload['container']['message_ts']
-        conversationIDs = googlesheets_read(googlesheets_id, 'database!A2:A')
-        location_id = conversationIDs.index(origin_ts)
+        origin_ts = int(float(payload['container']['thread_ts']))
+        conversationIDs = flatten_list(googlesheets_read(googlesheets_id, 'database!A2:A'))
+        location_id = conversationIDs.index(str(origin_ts))
         googlesheets_clear(googlesheets_id,'database!E{location}'.format(location=location_id+1))
         googlesheets_write(googlesheets_id,'database!E{location}'.format(location=location_id+1), 'yes')
         support_client.chat_update(
             channel=payload['channel']['id'],
-            ts=origin_ts,
+            ts=payload['container']['message_ts'],
             text = "Hey there! Have you checked these resources?",
             blocks = [
                 {
@@ -341,10 +351,10 @@ def interactive():
         product_owner_id = ids[names.index(po_names[features.index(product_feature)])]
 
         po_name = po_names[features.index(product_feature)]
-        conversationIDs = googlesheets_read(googlesheets_id, 'database!A2:A')
-        location_id = conversationIDs.index(payload['container']['message_ts'])
+        conversationIDs = flatten_list(googlesheets_read(googlesheets_id, 'database!A2:A'))
+        location_id = conversationIDs.index(str(int(float(payload['container']['thread_ts']))))
         googlesheets_clear(googlesheets_id,'database!F{location}:G{location}'.format(location=location_id+1))
-        googlesheets_append(googlesheets_id, 'database!F{location}:G{location}', [product_feature, po_name]) 
+        googlesheets_massupdate(googlesheets_id, 'database!F{location}:G{location}', [product_feature, po_name]) 
 
         support_client.chat_update(
             channel=payload['channel']['id'],
@@ -422,8 +432,8 @@ def interactive():
             ]
             )
         else:
-            conversationIDs = googlesheets_read(googlesheets_id, 'database!A2:A')
-            location_id = conversationIDs.index(payload['container']['message_ts'])
+            conversationIDs = flatten_list(googlesheets_read(googlesheets_id, 'database!A2:A'))
+            location_id = conversationIDs.index(str(int(float(payload['container']['thread_ts']))))
             googlesheets_clear(googlesheets_id,'F{location}:G{location}'.format(location=location_id+1))
             support_client.chat_postMessage(
                 channel=payload['channel']['id'],
@@ -433,12 +443,11 @@ def interactive():
         return make_response("Pinged Owner", 200, {"X-Slack-No-Retry": 1})
 
     elif payload['type'] == 'block_actions' and payload['actions'][0]['action_id'] == 'actionID-found-answer-2':
-        #Update googlesheet here
         user_id = payload['user']['id']
         message_payload = payload['state']['values']['question_answer']['plain_text_input-action']['value']
 
-        conversationIDs = googlesheets_read(googlesheets_id, 'database!A2:A')
-        location_id = conversationIDs.index(payload['container']['message_ts'])
+        conversationIDs = flatten_list(googlesheets_read(googlesheets_id, 'database!A2:A'))
+        location_id = conversationIDs.index(str(int(float(payload['container']['thread_ts']))))
         googlesheets_clear(googlesheets_id,'database!H{location}'.format(location=location_id+1))    
         googlesheets_write(googlesheets_id,'database!H{location}'.format(location=location_id+1), message_payload)
 
