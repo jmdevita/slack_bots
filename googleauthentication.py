@@ -85,7 +85,7 @@ def googlesheets_massupdate(spreadsheetId=SAMPLE_SPREADSHEET_ID,rangeId=SAMPLE_R
         # The new values to apply to the spreadsheet.
         'data': [{
             "range": rangeId,
-            "values": cell_values
+            "values": [cell_values]
         }],
 
         #"responseValueRenderOption": "FORMULA",

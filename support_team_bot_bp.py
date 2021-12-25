@@ -1,5 +1,5 @@
 from flask import abort, request, make_response, Blueprint
-import os, json
+import os, json, re
 from slack_sdk import WebClient
 
 support_client = WebClient(token=os.environ["SUPPORT_BOT_TOKEN"])
@@ -19,7 +19,9 @@ def is_request_valid(request):
 googlesheets_id = os.environ['GOOGLESHEETS_ID']
 
 def step_1_import(event_ts, response_metadata):
-    googlesheets_append(googlesheets_id, 'database!A2:H', [event_ts, 1, None, response_metadata["messages"][0]["text"], None, None, None])
+    response_text = re.sub(r'\<[^)]*\>', '', response_metadata["messages"][0]["text"]).lstrip()
+    response_user = response_metadata['messages'][0]['user']
+    googlesheets_append(googlesheets_id, 'database!A2:H', [event_ts, 1, response_user, response_text, None, None, None])
     pass
     #Need to have a comprehensive way to input into database
 def step_1_response(event_channel, event_ts):
@@ -51,7 +53,7 @@ def step_1_response(event_channel, event_ts):
                         "type": "button",
                         "text": {
                             "type": "plain_text",
-                            "text": "Yup, no luck"
+                            "text": "No Answer Found"
                         },
                         "value": "step_2_no_answer",
                         "action_id": "not-found-answer"
@@ -131,8 +133,8 @@ def interactive():
         origin_ts = int(float(payload['container']['thread_ts']))
         conversationIDs = flatten_list(googlesheets_read(googlesheets_id, 'database!A2:A'))
         location_id = conversationIDs.index(str(origin_ts))
-        googlesheets_clear(googlesheets_id,'database!E{location}'.format(location=location_id+1))
-        googlesheets_write(googlesheets_id,'database!E{location}'.format(location=location_id+1), 'yes')
+        googlesheets_clear(googlesheets_id,'database!E{location}'.format(location=location_id+2))
+        googlesheets_write(googlesheets_id,'database!E{location}'.format(location=location_id+2), 'yes')
         support_client.chat_update(
             channel=payload['channel']['id'],
             ts=payload['container']['message_ts'],
@@ -243,6 +245,11 @@ def interactive():
             ]
         )
 
+        conversationIDs = flatten_list(googlesheets_read(googlesheets_id, 'database!A2:A'))
+        location_id = conversationIDs.index(str(int(float(payload['container']['thread_ts']))))
+        googlesheets_clear(googlesheets_id,'database!F{location}:H{location}'.format(location=location_id+2))
+        googlesheets_massupdate(googlesheets_id, 'database!F{location}:H{location}'.format(location=location_id+2), ('N/A','N/A',message_payload))
+
         return make_response("Answer submitted by user", 200, {"X-Slack-No-Retry": 1})
         
     elif payload['type'] == 'block_actions' and payload['actions'][0]['action_id'] == 'not-found-answer':
@@ -320,6 +327,12 @@ def interactive():
                 }
             ]
         )
+
+        conversationIDs = flatten_list(googlesheets_read(googlesheets_id, 'database!A2:A'))
+        location_id = conversationIDs.index(str(int(float(payload['container']['thread_ts']))))
+        googlesheets_clear(googlesheets_id,'database!E{location}'.format(location=location_id+2))
+        googlesheets_write(googlesheets_id, 'database!E{location}'.format(location=location_id+2), "no")
+
         support_client.chat_postMessage(
             channel = payload['channel']['id'],
             thread_ts = payload['container']['thread_ts'],
@@ -353,8 +366,8 @@ def interactive():
         po_name = po_names[features.index(product_feature)]
         conversationIDs = flatten_list(googlesheets_read(googlesheets_id, 'database!A2:A'))
         location_id = conversationIDs.index(str(int(float(payload['container']['thread_ts']))))
-        googlesheets_clear(googlesheets_id,'database!F{location}:G{location}'.format(location=location_id+1))
-        googlesheets_massupdate(googlesheets_id, 'database!F{location}:G{location}', [product_feature, po_name]) 
+        googlesheets_clear(googlesheets_id,'database!F{location}:G{location}'.format(location=location_id+2))
+        googlesheets_massupdate(googlesheets_id, 'database!F{location}:G{location}'.format(location=location_id+2), (product_feature, po_name))
 
         support_client.chat_update(
             channel=payload['channel']['id'],
@@ -434,7 +447,7 @@ def interactive():
         else:
             conversationIDs = flatten_list(googlesheets_read(googlesheets_id, 'database!A2:A'))
             location_id = conversationIDs.index(str(int(float(payload['container']['thread_ts']))))
-            googlesheets_clear(googlesheets_id,'F{location}:G{location}'.format(location=location_id+1))
+            googlesheets_clear(googlesheets_id,'F{location}:G{location}'.format(location=location_id+2))
             support_client.chat_postMessage(
                 channel=payload['channel']['id'],
                 thread_ts = payload['container']['thread_ts'],
@@ -448,8 +461,8 @@ def interactive():
 
         conversationIDs = flatten_list(googlesheets_read(googlesheets_id, 'database!A2:A'))
         location_id = conversationIDs.index(str(int(float(payload['container']['thread_ts']))))
-        googlesheets_clear(googlesheets_id,'database!H{location}'.format(location=location_id+1))    
-        googlesheets_write(googlesheets_id,'database!H{location}'.format(location=location_id+1), message_payload)
+        googlesheets_clear(googlesheets_id,'database!H{location}'.format(location=location_id+2))    
+        googlesheets_write(googlesheets_id,'database!H{location}'.format(location=location_id+2), message_payload)
 
         support_client.chat_update(
             channel=payload['channel']['id'],
