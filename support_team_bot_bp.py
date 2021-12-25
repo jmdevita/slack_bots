@@ -400,7 +400,7 @@ def interactive():
             support_client.chat_postMessage(
                 channel=payload['channel']['id'],
                 thread_ts = payload['container']['thread_ts'],
-                text = "Pinging the {product_owner} for this feature. Do you have an answer to this?".format(product_owner=product_owner_id),
+                text = "Pinging the <@{product_owner}> for this feature. Do you have an answer to this?".format(product_owner=product_owner_id),
                 #Need to add in <@ > when truly done.
                 blocks = [
                 {
