@@ -7,7 +7,7 @@ from slack_sdk import WebClient
 from datetime import datetime, timezone, timedelta
 from dateutil import tz
 from time import sleep
-import os, json
+import os, json, random
 
 # Load Variables
 session = boto3.Session(
@@ -170,6 +170,12 @@ def mention():
             #Processing
             try:
                 _type = get_bones(int(event_date))
+                # Randomize
+                if _type == "No Reading":
+                    if random.randint(1,2) == 1:
+                        _type = "Bones"
+                    else:
+                        _type = "No Bones"
             except:
                 _type = 'No data yet'
             
