@@ -118,9 +118,16 @@ def workday_update():
             text = 'No Reading'
         post_bones(int(today), text)
         sleep(5)
-        #Posting
+        # Posting
         date = post_data['date']
         type = get_bones(date)
+        # Randomizer
+        if type == "No Reading":
+            if random.randint(1,2) == 1:
+                type = "Bones"
+            else:
+                type = "No Bones"
+
         text = "<!here> "
         if type == 'Bones':
             text += "Bones day! Get out there and crush it, take risks, make that one important call, live today to the fullest!"
