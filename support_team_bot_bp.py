@@ -16,7 +16,7 @@ def is_request_valid(request):
 
     return is_token_valid and is_team_id_valid
 
-googlesheets_id = os.environ['GOOGLESHEETS_ID']
+googlesheets_id = os.environ['SUPPORT_GOOGLESHEETS_ID']
 
 def step_1_import(event_ts, response_metadata):
     response_text = re.sub(r'\<[^)]*\>', '', response_metadata["messages"][0]["text"]).lstrip()
