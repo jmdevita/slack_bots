@@ -1,8 +1,5 @@
 # Import and Dependancies
-from dotenv import load_dotenv
 from flask_celery_app import flaskapp
-
-load_dotenv()
 
 # Grab Slack Apps
 from support_team_bot_bp import support_bot_flow
