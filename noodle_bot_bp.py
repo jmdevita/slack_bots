@@ -35,7 +35,7 @@ def create_table(table_name):
             AttributeDefinitions=[
                 {
                     'AttributeName': 'date',
-                    'AttributeType': 'N'
+                    'AttributeType': 'S'
                 }
             ],
             ProvisionedThroughput={
@@ -116,7 +116,7 @@ def workday_update():
             text = "No Bones"
         else:
             text = 'No Reading'
-        post_bones(int(today), text)
+        post_bones(today, text)
         sleep(5)
         # Posting
         date = post_data['date']
