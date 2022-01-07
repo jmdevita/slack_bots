@@ -99,7 +99,7 @@ def slack_events():
         try:
             event_ts = event["ts"]
         except KeyError:
-            event_ts_2 = event["thread_ts"]
+            event_ts = event["thread_ts"]
         event_channel=event["channel"]
 
         # Need to read googlesheet everytime for step
