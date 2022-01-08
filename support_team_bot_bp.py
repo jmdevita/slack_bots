@@ -402,7 +402,7 @@ def interactive():
             support_client.chat_postMessage(
                 channel=payload['channel']['id'],
                 thread_ts = payload['container']['thread_ts'],
-                text = "Pinging the <@{product_owner}> for this feature. Do you have an answer to this?".format(product_owner=product_owner_id),
+                text = "Pinging <@{product_owner}> for this feature. Do you have an answer to this?".format(product_owner=product_owner_id),
                 #Need to add in <@ > when truly done.
                 blocks = [
                 {
@@ -469,14 +469,14 @@ def interactive():
         support_client.chat_update(
             channel=payload['channel']['id'],
             ts=payload['container']['message_ts'],
-            text= "Pinging the <@{user}> for this feature. Do you have an answer to this?".format(user=user_id),
+            text= "Pinging <@{user}> for this feature. Do you have an answer to this?".format(user=user_id),
             blocks = [
                 {
                     "type": "context",
                     "elements": [
                         {
                             "type": "mrkdwn",
-                            "text": "Pinging the <@{user}> for this feature. Do you have an answer to this?".format(user=user_id)
+                            "text": "Pinging <@{user}> for this feature. Do you have an answer to this?".format(user=user_id)
                         }
                     ]
                 },
