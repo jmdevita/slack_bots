@@ -475,8 +475,8 @@ def interactive():
                     "type": "context",
                     "elements": [
                         {
-                            "type": "plain_text",
-                            "text": "Pinging the {user} for this feature. Do you have an answer to this?".format(user=user_id)
+                            "type": "mrkdwn",
+                            "text": "Pinging the <@{product_owner}> for this feature. Do you have an answer to this?".format(user=user_id)
                         }
                     ]
                 },
