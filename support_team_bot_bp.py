@@ -410,7 +410,7 @@ def interactive():
                     "elements": [
                         {
                             "type": "plain_text",
-                            "text": "Pinging the {product_owner} for this feature. Do you have an answer to this?".format(product_owner=product_owner_id)
+                            "text": "Pinging the <@{product_owner}> for this feature. Do you have an answer to this?".format(product_owner=product_owner_id)
                         }
                     ]
                 },
