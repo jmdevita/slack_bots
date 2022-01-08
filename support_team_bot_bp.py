@@ -469,14 +469,14 @@ def interactive():
         support_client.chat_update(
             channel=payload['channel']['id'],
             ts=payload['container']['message_ts'],
-            text= "Pinging the {user} for this feature. Do you have an answer to this?".format(user=user_id),
+            text= "Pinging the <@{user}> for this feature. Do you have an answer to this?".format(user=user_id),
             blocks = [
                 {
                     "type": "context",
                     "elements": [
                         {
                             "type": "mrkdwn",
-                            "text": "Pinging the <@{product_owner}> for this feature. Do you have an answer to this?".format(user=user_id)
+                            "text": "Pinging the <@{user}> for this feature. Do you have an answer to this?".format(user=user_id)
                         }
                     ]
                 },
