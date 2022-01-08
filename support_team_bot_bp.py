@@ -96,10 +96,12 @@ def slack_events():
     if "event" in slack_event:
         event = slack_event["event"]
         event_type = event["type"]
+        print(event)
+
         try:
-            event_ts = event["ts"]
-        except KeyError:
             event_ts = event["thread_ts"]
+        except KeyError:
+            event_ts = event["ts"]
         event_channel=event["channel"]
 
         # Need to read googlesheet everytime for step
@@ -108,7 +110,7 @@ def slack_events():
 
     # -------------------------------------- #
 
-        if event_type == "app_mention":
+        if event_type == "app_mention" :
             response_metadata = support_client.conversations_replies(
                 channel=event_channel,
                 inclusive=True,
