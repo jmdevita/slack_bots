@@ -256,7 +256,7 @@ def support_message():
         message_text = "\n".join(message_list)
         if rows:
             looker_client.chat_postMessage(
-                channel= 'C0290U076US',
+                channel= 'G01JCPP0SJZ',
                 text= "New users to be added to Looker, needs approval!",
                 blocks= [
                     {
