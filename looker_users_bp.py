@@ -39,16 +39,13 @@ def shortcut():
     payload = json.loads(request.form['payload'])
 
     if payload['type'] == 'block_actions' and payload['container']['type'] != 'view':
-        print(payload)
-        button_payload = json.loads(payload['actions'][0]['value'])
-        user_id = payload['user']['id']
+        button_payload = payload['actions'][0]['value']
         user_name = payload['user']['username']
 
         text = []
         for id in button_payload:
             g_names = [item for sublist in googlesheets_read(googlesheets_id, 'backlog!A2:A') for item in sublist]
-            text.append(g_names[id])
-        text = ','.join(text)
+        text = ', '.join(g_names)
 
         looker_client.chat_update(
             channel=payload['channel']['id'],
@@ -75,13 +72,12 @@ def shortcut():
                 }
             ]
         )
-
+        # Make this celery app
         g_db = googlesheets_read(googlesheets_id, 'backlog!A2:F')
-
         for index, val in enumerate(g_db):
-            if index in button_payload:
-                googlesheets_clear(googlesheets_id, 'backlog!F{num}'.format(num = index + 2))
-                googlesheets_write(googlesheets_id, 'backlog!F{num}'.format(num = index + 2), user_name)
+            if str(index) in button_payload:
+                googlesheets_clear(googlesheets_id, 'backlog!F{num}'.format(num = str(index + 2)))
+                googlesheets_write(googlesheets_id, 'backlog!F{num}'.format(num = str(index + 2)), user_name)
         
         return make_response('Support Authenticated', 200)
 
@@ -255,19 +251,19 @@ def support_message():
             google_date = datetime.strptime(row[4], '%m/%d/%Y')
             if google_date <= _date and row[5] == 'FALSE':
                 message_list.append("{email} to the *{group_name}* analytics group| Requested by _{requested_by}_".format(email=row[0], group_name=row[3], requested_by=row[1].title()))
-                rows.append(str(num))
+                rows.append(num)
             num += 1
         message_text = "\n".join(message_list)
         if rows:
             looker_client.chat_postMessage(
-                channel= 'G01JCPP0SJZ',
+                channel= 'C0290U076US',
                 text= "New users to be added to Looker, needs approval!",
                 blocks= [
                     {
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": 'These are the list of users that are requested to be added to Looker \n -------------------- \n' + message_text + '\n A reminder that users can be removed by deleting them from <https://docs.google.com/spreadsheets/d/10b1-9fr67GS8bHnsHfCEmc2WJk0xyL9ByP3gh_mHXpM/edit#gid=36461416|this document>.'
+                            "text": "These are the list of users that are requested to be added to Looker \n -------------------- \n" + message_text + "\n A reminder that users can be removed by deleting them from <https://docs.google.com/spreadsheets/d/10b1-9fr67GS8bHnsHfCEmc2WJk0xyL9ByP3gh_mHXpM/edit#gid=36461416|this document>."
                         }
                     },
                             {
@@ -279,7 +275,7 @@ def support_message():
                                     "type": "plain_text",
                                     "text": "Approve"
                                 },
-                                "value": "{rows}".format(rows='\n'.join(rows)),
+                                "value": "{rows}".format(rows=rows),
                                 "action_id": "action-approval"
                             }
                         ]
