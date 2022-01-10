@@ -247,8 +247,6 @@ def support_message():
         g_db = googlesheets_read(googlesheets_id, 'backlog!A2:F')
 
         _date = date.today()
-        scheduled_time = time(hour=12, minute=30)
-        schedule_timestamp = datetime.combine(_date, scheduled_time).strftime('%s')
 
         message_list = []
         rows = []
@@ -261,10 +259,9 @@ def support_message():
 
         message_text = "\n".join(message_list)
         if rows:
-            looker_client.chat_scheduleMessage(
+            looker_client.chat_postMessage(
                 channel= 'G01JCPP0SJZ',
-                text= "New users to be added to Looker, needs approval by 1:50pm PST!",
-                post_at=schedule_timestamp,
+                text= "New users to be added to Looker, needs approval!",
                 blocks= [
                     {
                         "type": "section",
