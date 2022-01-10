@@ -252,7 +252,8 @@ def support_message():
         rows = []
         num = 0
         for row in g_db:
-            if row[4] == _date.strftime('%m/%d/%Y') and row[5] == 'FALSE':
+            google_date = datetime.strftime(row[4], '%m/%d/%Y')
+            if google_date <= _date.strftime('%m/%d/%Y') and row[5] == 'FALSE':
                 message_list.append("{email} to the *{group_name}* analytics group| Requested by _{requested_by}_".format(email=row[0], group_name=row[3], requested_by=row[1].title()))
                 rows.append(num)
             num += 1
