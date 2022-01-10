@@ -253,11 +253,10 @@ def support_message():
         num = 0
         for row in g_db:
             google_date = datetime.strptime(row[4], '%m/%d/%Y')
-            if google_date >= _date and row[5] == 'FALSE':
+            if google_date <= _date and row[5] == 'FALSE':
                 message_list.append("{email} to the *{group_name}* analytics group| Requested by _{requested_by}_".format(email=row[0], group_name=row[3], requested_by=row[1].title()))
-                rows.append(num)
+                rows.append(str(num))
             num += 1
-
         message_text = "\n".join(message_list)
         if rows:
             looker_client.chat_postMessage(
