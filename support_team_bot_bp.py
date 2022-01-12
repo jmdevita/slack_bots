@@ -463,8 +463,10 @@ def interactive():
 
         conversationIDs = flatten_list(googlesheets_read(googlesheets_id, 'database!A2:A'))
         location_id = conversationIDs.index(str(int(float(payload['container']['thread_ts']))))
-        googlesheets_clear(googlesheets_id,'database!H{location}'.format(location=location_id+2))    
+        googlesheets_clear(googlesheets_id,'database!H{location}'.format(location=location_id+2))
         googlesheets_write(googlesheets_id,'database!H{location}'.format(location=location_id+2), message_payload)
+        googlesheets_clear(googlesheets_id,'database!E{location}'.format(location=location_id+2))
+        googlesheets_write(googlesheets_id,'database!E{location}'.format(location=location_id+2), 'yes')
 
         support_client.chat_update(
             channel=payload['channel']['id'],
