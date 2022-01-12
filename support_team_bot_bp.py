@@ -34,7 +34,7 @@ def step_1_response(event_channel, event_ts):
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": "Hey There! Have you checked: \n - The <https://support.wellapp.com/|Support Website>\n - In our <https://wellapp.atlassian.net/wiki/spaces/ProductDocs/pages|Confluence Product Page>\n - In the Slack Search Bar?"
+                    "text": "Hey There! Have you checked: \n - The <https://support.wellapp.com/|Support Website>\n - In our <https://wellapp.atlassian.net/wiki/spaces/ProductDocs/pages|Confluence Product Page>\n - Our <https://docs.google.com/spreadsheets/d/1y100p75PowMlya0CrRd9_iVy7PId7FCqkyslMjljMII/edit?usp=sharing|Database of Questions>\n - In the Slack Search Bar?"
                 },
                 "accessory": {
                     "type": "button",
