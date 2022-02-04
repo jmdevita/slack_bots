@@ -21,7 +21,7 @@ googlesheets_id = os.environ['SUPPORT_GOOGLESHEETS_ID']
 def step_1_import(event_ts, response_metadata):
     response_text = re.sub(r'\<[^)]*\>', '', response_metadata["messages"][0]["text"]).lstrip()
     response_user = response_metadata['messages'][0]['user']
-    googlesheets_append(googlesheets_id, 'database!A2:H', [event_ts, 1, response_user, response_text, None, None, None])
+    googlesheets_append(googlesheets_id, 'database!A2:H', [int(float(event_ts)), 1, response_user, response_text, None, None, None])
     pass
     #Need to have a comprehensive way to input into database
 def step_1_response(event_channel, event_ts):
@@ -34,7 +34,7 @@ def step_1_response(event_channel, event_ts):
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": "Hey There! Have you checked: \n - The <knowledge.wellapp.com|KB Website>\n - In our <https://wellapp.atlassian.net/wiki/spaces/ProductDocs/pages|Confluence Product Page>\n - Our <https://docs.google.com/spreadsheets/d/1y100p75PowMlya0CrRd9_iVy7PId7FCqkyslMjljMII/edit?usp=sharing|Database of Questions>\n - In the Slack Search Bar?"
+                    "text": "Hey There! Have you checked: \n - The <https://knowledge.wellapp.com|KB Website>\n - In our <https://wellapp.atlassian.net/wiki/spaces/ProductDocs/pages|Confluence Product Page>\n - Our <https://docs.google.com/spreadsheets/d/1y100p75PowMlya0CrRd9_iVy7PId7FCqkyslMjljMII/edit?usp=sharing|Database of Questions>\n - In the Slack Search Bar?"
                 },
                 "accessory": {
                     "type": "button",
@@ -96,8 +96,6 @@ def slack_events():
     if "event" in slack_event:
         event = slack_event["event"]
         event_type = event["type"]
-        print(event)
-
         try:
             event_ts = event["thread_ts"]
         except KeyError:
@@ -147,7 +145,7 @@ def interactive():
                     "elements": [
                         {
                             "type": "mrkdwn",
-                            "text": "Hey there! Have you checked: \n - The <knowledge.wellapp.com|KB Website>\n - In our <https://wellapp.atlassian.net/wiki/spaces/ProductDocs/pages|Confluence Product Page>\n - In the Slack Search Bar?"
+                            "text": "Hey there! Have you checked: \n - The <https://knowledge.wellapp.com|KB Website>\n - In our <https://wellapp.atlassian.net/wiki/spaces/ProductDocs/pages|Confluence Product Page>\n - In the Slack Search Bar?"
                         }
                     ]
                 },
@@ -311,7 +309,7 @@ def interactive():
                     "elements": [
                         {
                             "type": "mrkdwn",
-                            "text": "Hey There! Have you checked: \n - The <knowledge.wellapp.com|KB Website>\n - In our <https://wellapp.atlassian.net/wiki/spaces/ProductDocs/pages|Confluence Product Page>\n - Our <https://docs.google.com/spreadsheets/d/1y100p75PowMlya0CrRd9_iVy7PId7FCqkyslMjljMII/edit?usp=sharing|Database of Questions>\n - In the Slack Search Bar?"
+                            "text": "Hey There! Have you checked: \n - The <https://knowledge.wellapp.com|KB Website>\n - In our <https://wellapp.atlassian.net/wiki/spaces/ProductDocs/pages|Confluence Product Page>\n - Our <https://docs.google.com/spreadsheets/d/1y100p75PowMlya0CrRd9_iVy7PId7FCqkyslMjljMII/edit?usp=sharing|Database of Questions>\n - In the Slack Search Bar?"
                         }
                     ]
                 },
