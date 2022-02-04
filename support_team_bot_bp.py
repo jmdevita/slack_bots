@@ -478,7 +478,7 @@ def interactive():
                     "elements": [
                         {
                             "type": "mrkdwn",
-                            "text": "Pinging <@{user}> for this feature. Do you have an answer to this?".format(user=user_id)
+                            "text": "<@{user}> had an answer, posted below".format(user=user_id)
                         }
                     ]
                 },
