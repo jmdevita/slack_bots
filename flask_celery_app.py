@@ -1,7 +1,7 @@
 import os, urllib.parse
 from celery import Celery
 from flask import Flask
-from googleauthentication import googlesheets_append, googlesheets_read, googlesheets_write, googlesheets_clear
+from googleauthentication import googlesheets_append
 
 BROKER_URL = "sqs://{aws_access_key}:{aws_secret_key}@".format(
     aws_access_key=urllib.parse.quote(os.environ['AWS_ACCESS_KEY'], safe=''), aws_secret_key=urllib.parse.quote(os.environ['AWS_SECRET_ACCESS_KEY'], safe='')

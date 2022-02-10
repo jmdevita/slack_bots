@@ -39,13 +39,13 @@ def shortcut():
     payload = json.loads(request.form['payload'])
 
     if payload['type'] == 'block_actions' and payload['container']['type'] != 'view':
-        button_payload = payload['actions'][0]['value']
+        # this button payload contains a list of which rows were approved, where [0] is row 2 in the googlesheet
+        button_payload = json.loads(payload['actions'][0]['value'])
         user_name = payload['user']['username']
+        g_names = [item for sublist in googlesheets_read(googlesheets_id, 'backlog!A2:A') for item in sublist]
+        approved_names = list( g_names[i] for i in button_payload )
 
-        text = []
-        for id in button_payload:
-            g_names = [item for sublist in googlesheets_read(googlesheets_id, 'backlog!A2:A') for item in sublist]
-        text = ', '.join(g_names)
+        text = ', '.join(approved_names)
 
         looker_client.chat_update(
             channel=payload['channel']['id'],
@@ -73,9 +73,9 @@ def shortcut():
             ]
         )
         # Make this celery app
-        g_db = googlesheets_read(googlesheets_id, 'backlog!A2:F')
+        g_db = googlesheets_read(googlesheets_id, 'backlog!A2:A')
         for index, val in enumerate(g_db):
-            if str(index) in button_payload:
+            if index in button_payload:
                 googlesheets_clear(googlesheets_id, 'backlog!F{num}'.format(num = str(index + 2)))
                 googlesheets_write(googlesheets_id, 'backlog!F{num}'.format(num = str(index + 2)), user_name)
         
