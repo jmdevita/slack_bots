@@ -76,6 +76,23 @@ def is_request_valid(request):
 
     return is_token_valid and is_team_id_valid
 
+# Load randomized responses
+bones_day_list = [
+    "Bones day! Get out there and crush it, take risks, make that one important call, live today to the fullest!",
+    "Bones day! Reflect on your successes and what makes you feel good, think about sustainable ways to keep these things in your life",
+    "Bones day! Today is the day to do the thing! If you were looking for a sign, this is it! :justdoit: :catjam:",
+    "Bones day! Do that one thing that is lingering on your to-do list.",
+    "It's a soft bones day. Only mildly crush it today - no need to over do it, but remember to take care of yourself.",
+    "It's a bare bones day. Introspect into your bare bones and identify what is best for this day."
+]
+
+no_bones_day_list = [
+    "Today is a No Bones Day, be kind to yourself and remember to focus on self care.",
+    "No Bones Day. Be kind to others and ask that extra 'how are you?' someone may need it and you'll feel good, too.",
+    "No Bones Day. Take a moment and do some self-care: meditate, take a power nap, jam out to your favorite song, or cook/order your favorite meal.",
+    "No Bones Day. Keep those healthy coping mechanisms close! Go for a walk, pet a pet, bust out a weighted blanket, and don't forget to box breathe if you get stressed!"
+]
+
 # Load Single-Time Resources
 create_table('noodle_db')
 noodle_client = WebClient(token=os.environ['NOODLE_BOT_TOKEN'])
@@ -130,9 +147,9 @@ def workday_update():
 
         text = "<!here> "
         if type == 'Bones':
-            text += "Bones day! Get out there and crush it, take risks, make that one important call, live today to the fullest!"
+            text += random.choice(bones_day_list)
         elif type == 'No Bones':
-            text += "Today is a No Bones Day, be kind to yourself and remember to focus on self care"
+            text += random.choice(no_bones_day_list)
         else:
             text += "No Noodle day. Choose your own adventure."
 
@@ -187,9 +204,9 @@ def mention():
                 _type = 'No data yet'
             
             if _type == 'Bones':
-                text = "Bones day! Get out there and crush it, take risks, make that one important call, live today to the fullest!"
+                text = random.choice(bones_day_list)
             elif _type == 'No Bones':
-                 text = "Today is a No Bones Day, be kind to yourself and remember to focus on self care."
+                 text = random.choice(no_bones_day_list)
             elif _type == 'No Reading':
                  text = "No Noodle day. Choose your own adventure."
             else:
