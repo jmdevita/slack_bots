@@ -18,10 +18,10 @@ def is_request_valid(request):
 
 googlesheets_id = os.environ['SUPPORT_GOOGLESHEETS_ID']
 
-def step_1_import(event_ts, response_metadata):
+def step_1_import(event_ts, response_metadata, channel):
     response_text = re.sub(r'\<[^)]*\>', '', response_metadata["messages"][0]["text"]).lstrip()
     response_user = response_metadata['messages'][0]['user']
-    googlesheets_append(googlesheets_id, 'database!A2:H', [int(float(event_ts)), 1, response_user, response_text, None, None, None])
+    googlesheets_append(googlesheets_id, 'database!A2:H', [int(float(event_ts)), channel, response_user, response_text, None, None, None])
     pass
     #Need to have a comprehensive way to input into database
 def step_1_response(event_channel, event_ts):
@@ -117,7 +117,7 @@ def slack_events():
                 limit=1
             )
             print("Bot Mentioned!")
-            step_1_import(event_ts,response_metadata)
+            step_1_import(event_ts,response_metadata, event_channel)
             step_1_response(event_channel, event_ts)
 
             return make_response("Answer Sent", 200, {"X-Slack-No-Retry": 1})
