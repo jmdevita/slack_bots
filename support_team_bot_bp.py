@@ -19,9 +19,13 @@ def is_request_valid(request):
 googlesheets_id = os.environ['SUPPORT_GOOGLESHEETS_ID']
 
 def step_1_import(event_ts, response_metadata, channel):
-    response_text = re.sub(r'\<[^)]*\>', '', response_metadata["messages"][0]["text"]).lstrip()
+    # Added ability to have hyperlink to slack message, so when someone looks at the database, they can click on the question to shoot them to the question asked.
+    user_question = re.sub(r'\<[^)]*\>', '', response_metadata["messages"][0]["text"]).lstrip()
+    url = 'https://wellhealth.slack.com/archives/'+ channel + "/p" + response_metadata["messages"][0]["ts"].replace(".","")
+    user_question_link = '=HYPERLINK("{slack_link}", "{user_question}")'.format(slack_link = url, user_question = user_question)
+
     response_user = response_metadata['messages'][0]['user']
-    googlesheets_append(googlesheets_id, 'database!A2:H', [int(float(event_ts)), channel, response_user, response_text, None, None, None])
+    googlesheets_append(googlesheets_id, 'database!A2:H', [int(float(event_ts)), channel, response_user, user_question_link, None, None, None])
     pass
     #Need to have a comprehensive way to input into database
 def step_1_response(event_channel, event_ts):
@@ -214,6 +218,10 @@ def interactive():
 
     elif payload['type'] == 'block_actions' and payload['actions'][0]['action_id'] == 'actionID-found-answer':
         message_payload = payload['state']['values']['question_answer']['plain_text_input-action']['value']
+        # Splicing message_payload for urls with a trailing _ (this messes up the url)
+        url = re.search("(?P<url>https?://[^\s]+)", message_payload).group("url").rstrip('_')
+        message_payload = re.sub("(?P<url>https?://[^\s]+)", url, message_payload)
+
         user_id = payload['user']['id']
         support_client.chat_update(
             channel=payload['channel']['id'],
@@ -285,8 +293,12 @@ def interactive():
                     }
                 }
             ]
-
-        google_product_names = googlesheets_read(googlesheets_id,'product_owners!A2:A')
+        # Sorting which channel it is in
+        if payload['channel']['id'] == 'C017LNYUTGW': # Support Analytics Questions
+            sheetname = 'data_owners'
+        else:
+            sheetname = 'product_owners'
+        google_product_names = googlesheets_read(googlesheets_id,'{sheet}!A2:A'.format(sheet = sheetname))
         product_names = [item for sublist in google_product_names for item in sublist]
         for name in product_names:
             message_template = {
@@ -344,7 +356,13 @@ def interactive():
     elif payload['type'] == 'block_actions' and payload['actions'][0]['action_id'] == 'feature_classification':
         product_feature = payload['actions'][0]['selected_option']['text']['text']
         user_id = payload['user']['id']
-        g_read_po = googlesheets_read(googlesheets_id,'product_owners!A2:B')
+
+        # Sorting which channel it is in
+        if payload['channel']['id'] == 'C017LNYUTGW': # Support Analytics Questions
+            sheetname = 'data_owners'
+        else:
+            sheetname = 'product_owners'
+        g_read_po = googlesheets_read(googlesheets_id,'{sheet}!A2:B'.format(sheet=sheetname))
         g_read_si = googlesheets_read(googlesheets_id,'slack_ids!A2:B')
         features = []
         po_names = []
@@ -458,6 +476,9 @@ def interactive():
     elif payload['type'] == 'block_actions' and payload['actions'][0]['action_id'] == 'actionID-found-answer-2':
         user_id = payload['user']['id']
         message_payload = payload['state']['values']['question_answer']['plain_text_input-action']['value']
+        # Splicing message_payload for urls with a trailing _ (this messes up the url)
+        url = re.search("(?P<url>https?://[^\s]+)", message_payload).group("url").rstrip('_')
+        message_payload = re.sub("(?P<url>https?://[^\s]+)", url, message_payload)
 
         conversationIDs = flatten_list(googlesheets_read(googlesheets_id, 'database!A2:A'))
         location_id = conversationIDs.index(str(int(float(payload['container']['thread_ts']))))

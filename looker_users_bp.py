@@ -3,6 +3,12 @@ from datetime import datetime, timedelta, date, time
 
 from googleauthentication import googlesheets_append, googlesheets_read, googlesheets_write, googlesheets_clear
 
+# Sendgrid Imports
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+from bs4 import BeautifulSoup
+
+# Slack Imports
 from slack_sdk import WebClient
 from flask import abort, Blueprint, request, make_response
 from flask_celery_app import flaskapp, add_user_google
@@ -72,7 +78,6 @@ def shortcut():
                 }
             ]
         )
-        # Make this celery app
         g_db = googlesheets_read(googlesheets_id, 'backlog!A2:A')
         for index, val in enumerate(g_db):
             if index in button_payload:
@@ -219,10 +224,37 @@ def user_added():
         email = post_data['user_email']
         reset_link = post_data['reset_link']
 
-        looker_client.chat_postMessage(
-            channel=post_data['slack_id'],
-            text= "User -- {email} -- was added to Looker. Their reset link is: {reset_link}".format(email=email, reset_link=reset_link)
-        )
+        # Post message via Sendgrid and send slack user a verification response.
+        SENDGRID_API_KEY = os.environ['SENDGRID_API_KEY']
+        from_email = os.environ['SENDGRID_EMAIL']
+
+        with open('welcome_email.html', 'r') as f:
+            contents = f.read()
+            html_welcome_email = BeautifulSoup(contents, 'html.parser')
+
+        html_welcome_email.find(class_='lkrButton')['href'] = reset_link # This is where we add in password reset code
+        message = Mail(
+            from_email=from_email,
+            to_emails= email,
+            subject='Welcome to WELL Analytics Plus',
+            html_content=str(html_welcome_email))
+        try:
+            sg = SendGridAPIClient(SENDGRID_API_KEY)
+            sg.send(message) # Sending email with login link
+            
+            # Message looker user that email was successful
+            looker_client.chat_postMessage(
+                channel=post_data['slack_id'],
+                text= "User -- {email} -- was added to Looker. An email from {from_email} has been sent to them.".format(email=email, from_email=from_email)
+            )
+        except Exception as e:
+            print(e.message)
+            # Should have a logging component here instead of these print statements
+            looker_client.chat_postMessage(
+                channel=post_data['slack_id'],
+                text= "User -- {email} -- was added not sent an email due to a SendGrid error. Please send them an email with their login link: {reset_link}".format(email=email, reset_link=reset_link)
+            )
+
         return make_response("", 200)
     elif verify_token == "INVALID":
         return {"message": "No Token"}, 401
