@@ -219,8 +219,11 @@ def interactive():
     elif payload['type'] == 'block_actions' and payload['actions'][0]['action_id'] == 'actionID-found-answer':
         message_payload = payload['state']['values']['question_answer']['plain_text_input-action']['value']
         # Splicing message_payload for urls with a trailing _ (this messes up the url)
-        url = re.search("(?P<url>https?://[^\s]+)", message_payload).group("url").rstrip('_')
-        message_payload = re.sub("(?P<url>https?://[^\s]+)", url, message_payload)
+        try:
+            url = re.search("(?P<url>https?://[^\s]+)", message_payload).group("url").rstrip('_')
+            message_payload = re.sub("(?P<url>https?://[^\s]+)", url, message_payload)
+        except:
+            message_payload
 
         user_id = payload['user']['id']
         support_client.chat_update(
