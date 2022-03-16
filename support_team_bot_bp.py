@@ -269,7 +269,7 @@ def interactive():
                     "elements": [
                         {
                             "type": "plain_text",
-                            "text": "Darn! Let's see what we can do. Which feature is this a part of? Please start typing in the product feature."
+                            "text": "Let's see what we can do. Which feature is this a part of? Please start typing in the product feature."
                         }
                     ]
                 },
@@ -396,7 +396,7 @@ def interactive():
                     "elements": [
                         {
                             "type": "plain_text",
-                            "text": "Darn! Let's see what we can do. Which feature is this a part of? Please start typing in the product feature."
+                            "text": "Let's see what we can do. Which feature is this a part of? Please start typing in the product feature."
                         }
                     ]
                 },
@@ -477,8 +477,11 @@ def interactive():
         user_id = payload['user']['id']
         message_payload = payload['state']['values']['question_answer']['plain_text_input-action']['value']
         # Splicing message_payload for urls with a trailing _ (this messes up the url)
-        url = re.search("(?P<url>https?://[^\s]+)", message_payload).group("url").rstrip('_')
-        message_payload = re.sub("(?P<url>https?://[^\s]+)", url, message_payload)
+        try:
+            url = re.search("(?P<url>https?://[^\s]+)", message_payload).group("url").rstrip('_')
+            message_payload = re.sub("(?P<url>https?://[^\s]+)", url, message_payload)
+        except:
+            message_payload
 
         conversationIDs = flatten_list(googlesheets_read(googlesheets_id, 'database!A2:A'))
         location_id = conversationIDs.index(str(int(float(payload['container']['thread_ts']))))

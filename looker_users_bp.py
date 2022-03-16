@@ -147,7 +147,7 @@ def shortcut():
                             },
                             "label": {
                                 "type": "plain_text",
-                                "text": "Date to be Added (must be day after today at the earliest)"
+                                "text": "Date to be Added"
                             }
                         }
                     ],
@@ -155,7 +155,7 @@ def shortcut():
                 }
 
         # Changing date
-        message['blocks'][3]['element']['initial_date'] = (datetime.today()+timedelta(days=1)).strftime('%Y-%m-%d')
+        message['blocks'][3]['element']['initial_date'] = datetime.today().strftime('%Y-%m-%d')
         looker_client.views_open(
             trigger_id = payload['trigger_id'],
             view=message,
