@@ -223,13 +223,11 @@ def user_added():
     if verify_token == os.environ['LOOKER_WEBHOOK_TOKEN']:
         email = post_data['user_email']
         analytics_new_account_link = os.environ['ANALYTICS_BASE_LINK']
-        print(post_data['reset'])
         if post_data['reset']: # Due to iconsistency of making an account
             reset_link = analytics_new_account_link + "/password/reset/" + re.findall("([^\/]+$)", post_data['reset_link'])[0]
         else:
             reset_link = analytics_new_account_link + "/account/setup/" + re.findall("([^\/]+$)", post_data['reset_link'])[0]
         # Post message via Sendgrid and send slack user a verification response.
-        print(reset_link)
         SENDGRID_API_KEY = os.environ['SENDGRID_API_KEY']
         from_email = os.environ['SENDGRID_EMAIL']
 
