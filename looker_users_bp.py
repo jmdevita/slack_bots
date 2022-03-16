@@ -1,5 +1,5 @@
-import os, json
-from datetime import datetime, timedelta, date, time
+import os, json, re
+from datetime import datetime, timedelta
 
 from googleauthentication import googlesheets_append, googlesheets_read, googlesheets_write, googlesheets_clear
 
@@ -222,8 +222,11 @@ def user_added():
         verify_token = "INVALID"
     if verify_token == os.environ['LOOKER_WEBHOOK_TOKEN']:
         email = post_data['user_email']
-        reset_link = post_data['reset_link']
-
+        analytics_new_account_link = os.environ['ANALYTICS_BASE_LINK']
+        if post_data['reset'] == 'True':
+            reset_link = analytics_new_account_link + re.findall("([^\/]+$)", post_data['reset_link'])[0]
+        else:
+            reset_link = post_data['reset_link']
         # Post message via Sendgrid and send slack user a verification response.
         SENDGRID_API_KEY = os.environ['SENDGRID_API_KEY']
         from_email = os.environ['SENDGRID_EMAIL']
