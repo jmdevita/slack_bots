@@ -221,9 +221,10 @@ def interactive():
         # Splicing message_payload for urls with a trailing _ (this messes up the url)
         try:
             url = re.search("(?P<url>https?://[^\s]+)", message_payload).group("url").rstrip('_')
-            message_payload = re.sub("(?P<url>https?://[^\s]+)", url, message_payload)
+            message_payload = re.sub("(?P<url>https?://[^\s]+)", url, message_payload) # fix url
+            message_payload = message_payload.replace('\"', '\'')
         except:
-            message_payload
+            message_payload.replace('\"', '\'')
 
         user_id = payload['user']['id']
         support_client.chat_update(
@@ -483,8 +484,9 @@ def interactive():
         try:
             url = re.search("(?P<url>https?://[^\s]+)", message_payload).group("url").rstrip('_')
             message_payload = re.sub("(?P<url>https?://[^\s]+)", url, message_payload)
+            message_payload = message_payload.replace('\"', '\'')
         except:
-            message_payload
+            message_payload.replace('\"', '\'')
 
         conversationIDs = flatten_list(googlesheets_read(googlesheets_id, 'database!A2:A'))
         location_id = conversationIDs.index(str(int(float(payload['container']['thread_ts']))))
