@@ -90,7 +90,7 @@ def shortcut():
         message = {
                     "title": {
                         "type": "plain_text",
-                        "text": "Add a User"
+                        "text": "Add a User or Reset a Password"
                     },
                     "submit": {
                         "type": "plain_text",
@@ -230,7 +230,6 @@ def user_added():
         # Post message via Sendgrid and send slack user a verification response.
         SENDGRID_API_KEY = os.environ['SENDGRID_API_KEY']
         from_email = os.environ['SENDGRID_EMAIL']
-
         with open('welcome_email.html', 'r') as f:
             contents = f.read()
             html_welcome_email = BeautifulSoup(contents, 'html.parser')
