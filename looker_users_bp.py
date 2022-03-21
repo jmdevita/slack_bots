@@ -90,7 +90,7 @@ def shortcut():
         message = {
                     "title": {
                         "type": "plain_text",
-                        "text": "Add a User or Reset a Password"
+                        "text": "Add or Reset a User"
                     },
                     "submit": {
                         "type": "plain_text",
