@@ -147,7 +147,7 @@ def shortcut():
                             },
                             "label": {
                                 "type": "plain_text",
-                                "text": "Date to be Added"
+                                "text": "Date to be Added/Reset"
                             }
                         }
                     ],
