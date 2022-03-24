@@ -169,8 +169,10 @@ def shortcut():
         requestor_name = payload['user']['username']
         requestor_id = payload['user']['id']
         
+        # Fix Date
+        date_formatted = datetime.strptime(_date, '%Y-%m-%d').strftime('%m/%d/%y')
         # Celery Task
-        add_user_google.delay(googlesheets_id, email, requestor_name, requestor_id, group, _date)
+        add_user_google.delay(googlesheets_id, email, requestor_name, requestor_id, group, date_formatted)
         
         looker_client.chat_postMessage(
             channel=requestor_id,
