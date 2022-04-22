@@ -4,7 +4,7 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 whoisthis_client = WebClient(token=os.environ["WIT_BOT_TOKEN"])
-whoisthis_bot = Blueprint('whoisthis_bot', __name__)
+whoisthis_bot_flow = Blueprint('whoisthis_bot_flow', __name__)
 
 from googleauthentication import googlesheets_read
 wit_googlesheets_id = os.environ['WIT_GOOGLESHEETS_ID']
@@ -15,7 +15,7 @@ def is_request_valid(request):
 
     return is_token_valid and is_team_id_valid
 
-@whoisthis_bot.route('/internal/whoisthis', methods=['GET','POST'])
+@whoisthis_bot_flow.route('/internal/whoisthis', methods=['GET','POST'])
 def whoisthis_bot():
     if not is_request_valid(request.form):
         return {"message": "Not Authorized"}, 401
