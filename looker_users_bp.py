@@ -237,44 +237,44 @@ def user_added():
                 text= "ERROR: User -- {email} -- was not added added to Looker. There is no contract found for this account, please contact the Finance team or provide the contract details to the Data team.".format(email=email)
             )
             return make_response("", 200)
-        
-        analytics_new_account_link = os.environ['ANALYTICS_BASE_LINK']
-        
-        if post_data['reset']: # Due to iconsistency of making an account
-            reset_link = analytics_new_account_link + "/password/reset/" + re.findall("([^\/]+$)", post_data['reset_link'])[0]
         else:
-            reset_link = analytics_new_account_link + "/account/setup/" + re.findall("([^\/]+$)", post_data['reset_link'])[0]
-        # Post message via Sendgrid and send slack user a verification response.
-        SENDGRID_API_KEY = os.environ['SENDGRID_API_KEY']
-        from_email = os.environ['SENDGRID_EMAIL']
-        with open('welcome_email.html', 'r') as f:
-            contents = f.read()
-            html_welcome_email = BeautifulSoup(contents, 'html.parser')
-
-        html_welcome_email.find(class_='lkrButton')['href'] = reset_link # This is where we add in password reset code
-        message = Mail(
-            from_email=from_email,
-            to_emails= email,
-            subject='Welcome to WELL Analytics Plus',
-            html_content=str(html_welcome_email))
-        try:
-            sg = SendGridAPIClient(SENDGRID_API_KEY)
-            sg.send(message) # Sending email with login link
+            analytics_new_account_link = os.environ['ANALYTICS_BASE_LINK']
             
-            # Message looker user that email was successful
-            looker_client.chat_postMessage(
-                channel=post_data['slack_id'],
-                text= "User -- {email} -- was added to Looker. An email from {from_email} has been sent to them.".format(email=email, from_email=from_email)
-            )
-        except Exception as e:
-            print(e.message)
-            # Should have a logging component here instead of these print statements
-            looker_client.chat_postMessage(
-                channel=post_data['slack_id'],
-                text= "User -- {email} -- was added not sent an email due to a SendGrid error. Please send them an email with their login link: {reset_link}".format(email=email, reset_link=reset_link)
-            )
+            if post_data['reset']: # Due to iconsistency of making an account
+                reset_link = analytics_new_account_link + "/password/reset/" + re.findall("([^\/]+$)", post_data['reset_link'])[0]
+            else:
+                reset_link = analytics_new_account_link + "/account/setup/" + re.findall("([^\/]+$)", post_data['reset_link'])[0]
+            # Post message via Sendgrid and send slack user a verification response.
+            SENDGRID_API_KEY = os.environ['SENDGRID_API_KEY']
+            from_email = os.environ['SENDGRID_EMAIL']
+            with open('welcome_email.html', 'r') as f:
+                contents = f.read()
+                html_welcome_email = BeautifulSoup(contents, 'html.parser')
 
-        return make_response("", 200)
+            html_welcome_email.find(class_='lkrButton')['href'] = reset_link # This is where we add in password reset code
+            message = Mail(
+                from_email=from_email,
+                to_emails= email,
+                subject='Welcome to WELL Analytics Plus',
+                html_content=str(html_welcome_email))
+            try:
+                sg = SendGridAPIClient(SENDGRID_API_KEY)
+                sg.send(message) # Sending email with login link
+                
+                # Message looker user that email was successful
+                looker_client.chat_postMessage(
+                    channel=post_data['slack_id'],
+                    text= "User -- {email} -- was added to Looker. An email from {from_email} has been sent to them.".format(email=email, from_email=from_email)
+                )
+            except Exception as e:
+                print(e.message)
+                # Should have a logging component here instead of these print statements
+                looker_client.chat_postMessage(
+                    channel=post_data['slack_id'],
+                    text= "User -- {email} -- was added not sent an email due to a SendGrid error. Please send them an email with their login link: {reset_link}".format(email=email, reset_link=reset_link)
+                )
+
+            return make_response("", 200)
     elif verify_token == "INVALID":
         return {"message": "No Token"}, 401
     else:
