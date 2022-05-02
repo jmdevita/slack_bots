@@ -48,9 +48,9 @@ def whoisthis_bot():
                     channel=request.form["user_id"],
                     text = "Could not find user in Lattice, there may be a naming mismatch between Lattice and Slack. Sorry about that!"
                 )
-            return ''
+            return make_response("", 200)
     except NameError:
-            try: 
+            try:
                 whoisthis_client.chat_postEphemeral(
                     user= request.form["user_id"],
                     channel=request.form["channel_id"],
@@ -61,7 +61,7 @@ def whoisthis_bot():
                     channel=request.form["user_id"],
                     text = "Could not find user in Slack, make sure you are just typing in the username with the @ symbol, and nothing else. Sorry about that!"
                 )
-            return ''
+            return make_response("", 200)
     
     try:
         whoisthis_client.chat_postEphemeral(

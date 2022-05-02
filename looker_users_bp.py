@@ -224,7 +224,22 @@ def user_added():
         verify_token = "INVALID"
     if verify_token == os.environ['LOOKER_WEBHOOK_TOKEN']:
         email = post_data['user_email']
+        # Adding logic to account for users that have met contract quota or no contract was found
+        if post_data['fail_reason'] == "Max Users Met":
+            looker_client.chat_postMessage(
+                channel=post_data['slack_id'],
+                text= "ERROR: User -- {email} -- was not added added to Looker. The contracted amount of max users have been met.".format(email=email)
+            )
+            return make_response("", 200)
+        elif post_data['fail_reason'] == "No Contract Found":
+            looker_client.chat_postMessage(
+                channel=post_data['slack_id'],
+                text= "ERROR: User -- {email} -- was not added added to Looker. There is no contract found for this account, please contact the Finance team or provide the contract details to the Data team.".format(email=email)
+            )
+            return make_response("", 200)
+        
         analytics_new_account_link = os.environ['ANALYTICS_BASE_LINK']
+        
         if post_data['reset']: # Due to iconsistency of making an account
             reset_link = analytics_new_account_link + "/password/reset/" + re.findall("([^\/]+$)", post_data['reset_link'])[0]
         else:
