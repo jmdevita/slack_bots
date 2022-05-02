@@ -225,16 +225,16 @@ def user_added():
     if verify_token == os.environ['LOOKER_WEBHOOK_TOKEN']:
         email = post_data['user_email']
         # Adding logic to account for users that have met contract quota or no contract was found
-        if post_data['fail_reason'] == "Max Users Met":
+        if post_data['fail_reason'] == "Max Users Met" and not post_data['reset']:
             looker_client.chat_postMessage(
                 channel=post_data['slack_id'],
-                text= "ERROR: User -- {email} -- was not added added to Looker. The contracted amount of max users have been met.".format(email=email)
+                text= "ERROR: User -- {email} -- was not added to Looker. The contracted amount of total users have been met. If the client is interested in adjusting their contract please consult the Sales team.".format(email=email)
             )
             return make_response("", 200)
-        elif post_data['fail_reason'] == "No Contract Found":
+        elif post_data['fail_reason'] == "No Contract Found" and not post_data['reset']:
             looker_client.chat_postMessage(
                 channel=post_data['slack_id'],
-                text= "ERROR: User -- {email} -- was not added added to Looker. There is no contract found for this account, please contact the Finance team or provide the contract details to the Data team.".format(email=email)
+                text= "ERROR: User -- {email} -- was not added to Looker. There is no contract found for this account, please contact the Finance team or provide the contract details to the Data team.".format(email=email)
             )
             return make_response("", 200)
         else:
