@@ -90,7 +90,7 @@ def shortcut():
         message = {
                     "title": {
                         "type": "plain_text",
-                        "text": "Add or Reset a User"
+                        "text": "Add a User"
                     },
                     "submit": {
                         "type": "plain_text",
@@ -147,7 +147,7 @@ def shortcut():
                             },
                             "label": {
                                 "type": "plain_text",
-                                "text": "Date to be Added/Reset"
+                                "text": "Date to be Added"
                             }
                         }
                     ],
@@ -240,7 +240,7 @@ def user_added():
         else:
             analytics_new_account_link = os.environ['ANALYTICS_BASE_LINK']
             
-            if post_data['reset']: # Due to iconsistency of making an account
+            if post_data['reset']: # Due to inconsistency of making an account
                 reset_link = analytics_new_account_link + "/password/reset/" + re.findall("([^\/]+$)", post_data['reset_link'])[0]
             else:
                 reset_link = analytics_new_account_link + "/account/setup/" + re.findall("([^\/]+$)", post_data['reset_link'])[0]
