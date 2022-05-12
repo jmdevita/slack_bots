@@ -192,7 +192,7 @@ def shortcut():
         
         looker_client.chat_postMessage(
             channel=requestor_id,
-            text= "These users -- {email} -- are added to the queue. They will be added to *{group}'s* analytics group. You will get a follow up message when the user is added. Generally users are added at 5am PST every day. Please contact <@U01HR2FE9RC> if there was a mistake.".format(email=email, group=group.title())
+            text= "These users -- {email} -- are added to the queue. They will be added to *{group}'s* analytics group once approved. Expect about an hour for approval and you will be notified if the user group may be full, the contract is unavailable, or if the user is added. Please contact <@U01HR2FE9RC> if there was a mistake.".format(email=email, group=group.title())
         )
         return make_response("", 200)
 
