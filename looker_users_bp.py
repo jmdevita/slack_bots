@@ -43,50 +43,63 @@ def shortcut():
         abort(400)
     
     payload = json.loads(request.form['payload'])
-
     # This section is for the Looker Bot (Adding a User)
 
-    if payload['type'] == 'block_actions' and payload['container']['type'] != 'view' and payload['callback_id'] == 'looker_add_user':
-        # this button payload contains a list of which rows were approved, where [0] is row 2 in the googlesheet
-        button_payload = json.loads(payload['actions'][0]['value'])
-        user_name = payload['user']['username']
-        g_names = [item for sublist in googlesheets_read(googlesheets_id, 'backlog!A2:A') for item in sublist]
-        approved_names = list( g_names[i] for i in button_payload )
+    if payload['type'] == 'block_actions' and payload['container']['type'] == 'message':
+        button_action = payload['actions'][0]['action_id']
+        # Approve Button Pressed
+        if button_action == "action-approval":
+            # this button payload contains a list of which rows were approved, where [0] is row 2 in the googlesheet
+            button_payload = json.loads(payload['actions'][0]['value'])
+            user_name = payload['user']['username']
+            g_names = [item for sublist in googlesheets_read(googlesheets_id, 'backlog!A2:A') for item in sublist]
+            approved_names = list( g_names[i] for i in button_payload )
 
-        text = ', '.join(approved_names)
+            text = ', '.join(approved_names)
 
-        looker_client.chat_update(
-            channel=payload['channel']['id'],
-            ts=payload['container']['message_ts'],
-            blocks= [
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": text + ' have been approved.'
-                    }
-                },
-                {
-                    "type": "divider"
-                },
-                {
-                    "type": "context",
-                    "elements": [
-                        {
+            looker_client.chat_update(
+                channel=payload['channel']['id'],
+                ts=payload['container']['message_ts'],
+                blocks= [
+                    {
+                        "type": "section",
+                        "text": {
                             "type": "mrkdwn",
-                            "text": "<@{user}> has approved these individuals.".format(user=user_name)
+                            "text": text + ' have been approved.'
                         }
-                    ]
-                }
-            ]
-        )
-        g_db = googlesheets_read(googlesheets_id, 'backlog!A2:A')
-        for index, val in enumerate(g_db):
-            if index in button_payload:
-                googlesheets_clear(googlesheets_id, 'backlog!F{num}'.format(num = str(index + 2)))
-                googlesheets_write(googlesheets_id, 'backlog!F{num}'.format(num = str(index + 2)), user_name)
+                    },
+                    {
+                        "type": "divider"
+                    },
+                    {
+                        "type": "context",
+                        "elements": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "<@{user}> has approved these individuals.".format(user=user_name)
+                            }
+                        ]
+                    }
+                ]
+            )
+            g_db = googlesheets_read(googlesheets_id, 'backlog!A2:A')
+            for index, val in enumerate(g_db):
+                if index in button_payload:
+                    googlesheets_clear(googlesheets_id, 'backlog!F{num}'.format(num = str(index + 2)))
+                    googlesheets_write(googlesheets_id, 'backlog!F{num}'.format(num = str(index + 2)), user_name)
+            
+            return make_response('Support Authenticated', 200)
         
-        return make_response('Support Authenticated', 200)
+        # Delete Button Pressed
+        elif button_action == "action-delete":
+            looker_client.chat_delete(
+                channel=payload['channel']['id'],
+                ts=payload['container']['message_ts']
+            )
+            
+            return make_response('Message Deleted', 200)
+        else:
+            return make_response('No Actionable Method', 400)
 
     elif payload['type'] == 'shortcut' and payload['callback_id'] == 'looker_add_user':
         message = {
@@ -401,7 +414,7 @@ def support_message():
         message_text = "\n".join(message_list)
         if rows:
             looker_client.chat_postMessage(
-                channel= 'C02TH2Y07RA',
+                channel= "C0290U076US",#'C02TH2Y07RA',
                 text= "New users to be added to Looker, needs approval!",
                 blocks= [
                     {
@@ -422,6 +435,15 @@ def support_message():
                                 },
                                 "value": "{rows}".format(rows=rows),
                                 "action_id": "action-approval"
+                            },
+                            {
+                                "type": "button",
+                                "text": {
+                                    "type": "plain_text",
+                                    "text": "Delete Message"
+                                },
+                                "value": "delete",
+                                "action_id": "action-delete"
                             }
                         ]
                     }
