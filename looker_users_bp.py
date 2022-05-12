@@ -44,7 +44,9 @@ def shortcut():
     
     payload = json.loads(request.form['payload'])
 
-    if payload['type'] == 'block_actions' and payload['container']['type'] != 'view':
+    # This section is for the Looker Bot (Adding a User)
+
+    if payload['type'] == 'block_actions' and payload['container']['type'] != 'view' and payload['callback_id'] == 'looker_add_user':
         # this button payload contains a list of which rows were approved, where [0] is row 2 in the googlesheet
         button_payload = json.loads(payload['actions'][0]['value'])
         user_name = payload['user']['username']
@@ -86,7 +88,7 @@ def shortcut():
         
         return make_response('Support Authenticated', 200)
 
-    elif payload['type'] != 'view_submission':
+    elif payload['type'] == 'shortcut' and payload['callback_id'] == 'looker_add_user':
         message = {
                     "title": {
                         "type": "plain_text",
@@ -151,18 +153,19 @@ def shortcut():
                             }
                         }
                     ],
-                    "type": "modal"
+                    "type": "modal",
+                    "callback_id": "looker_add_user"
                 }
 
         # Changing date
         message['blocks'][3]['element']['initial_date'] = datetime.today().strftime('%Y-%m-%d')
         looker_client.views_open(
             trigger_id = payload['trigger_id'],
-            view=message,
+            view=message
         )
         
         return make_response("", 200)
-    elif payload['type'] == 'view_submission':
+    elif payload['type'] == 'view_submission' and payload['view']['callback_id'] == 'looker_add_user':
         email = payload['view']['state']['values']['email_address']['plain_text_input-action']['value']
         group = payload['view']['state']['values']['group_name']['group_option']['selected_option']['text']['text'].lower()
         _date = payload['view']['state']['values']['date_select']['datepicker-action']['selected_date']
@@ -170,15 +173,106 @@ def shortcut():
         requestor_id = payload['user']['id']
         
         # Fix Date
-        date_formatted = datetime.strptime(_date, '%Y-%m-%d').strftime('%m/%d/%y')
+        date_formatted = datetime.strptime(_date, '%Y-%m-%d').strftime('%m/%d/%Y')
         # Celery Task
         add_user_google.delay(googlesheets_id, email, requestor_name, requestor_id, group, date_formatted)
         
         looker_client.chat_postMessage(
             channel=requestor_id,
-            text= "These users -- {email} -- are added to the queue. They will be added to *{group}'s* analytics group. You will get a follow up message when the user is added. Generally users are added at 5am PST every day. Please contact <@U01HR2FE9RC> if there was a mistake.".format(email=email, group=group)
+            text= "These users -- {email} -- are added to the queue. They will be added to *{group}'s* analytics group. You will get a follow up message when the user is added. Generally users are added at 5am PST every day. Please contact <@U01HR2FE9RC> if there was a mistake.".format(email=email, group=group.title())
         )
         return make_response("", 200)
+
+# This section is the Contracted Seats (User Account) Lookup Shortcut
+
+    elif payload['type'] == "shortcut" and payload['callback_id'] == 'check_contract':
+        message = {
+            "title": {
+                "type": "plain_text",
+                "text": "Look up Contracted Seats"
+            },
+            "submit": {
+                "type": "plain_text",
+                "text": "Submit"
+            },
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "Want to find out how many seats an account is contracted? Or see if we have a contract at all?"
+                    }
+                },
+                {
+                    "type": "section",
+                    "block_id": "group_name",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "User Group"
+                    },
+                    "accessory": {
+                        "action_id": "group_option",
+                        "type": "external_select",
+                        "placeholder": {
+                            "type": "plain_text",
+                            "text": "Type Here"
+                        },
+                        "min_query_length": 3
+                    }
+                }
+            ],
+            "type": "modal",
+            "callback_id": "check_contract"
+        }
+
+        looker_client.views_open(
+            trigger_id = payload['trigger_id'],
+            view=message
+        )
+        return make_response("", 200)
+
+    elif payload['type'] == "view_submission" and payload['view']['callback_id'] == 'check_contract':
+        # Read from payload the group
+        group = payload['view']['state']['values']['group_name']['group_option']['selected_option']['text']['text'].lower()
+        requestor_id = payload['user']['id']
+        # Read contract_info section from google sheet
+        contract_info_g = googlesheets_read(googlesheets_id, "contract_info!A2:C")
+        contract_found = False
+        for row in contract_info_g:
+            if group == row[0].lower(): # Compares group name to contract_info group name to grab looker seats
+                looker_user_count = int(row[2])
+
+                contract_found = True
+        # This will read
+        print(contract_found)
+        if contract_found == True:
+            looker_groups_g = googlesheets_read(googlesheets_id, "looker_groups!A2:D")
+            for row in looker_groups_g:
+                if group == row[0].lower(): # Compares group name to looker_group name to grab seats
+                    contract_user_count = int(row[2])
+                    print(contract_user_count)
+
+            # The contract_user_count will ALWAYS be met since the contract found variable is true
+            if contract_user_count < looker_user_count:
+                looker_client.chat_postMessage(
+                    channel=requestor_id,
+                    text= "This account, {group}, can add more users in looker.\nContracted Users: {contract_user_count}\nCurrent Looker Users: {looker_user_count}".format(group=group.title(), looker_user_count=looker_user_count, contract_user_count=contract_user_count)
+                )
+            else:
+                looker_client.chat_postMessage(
+                    channel=requestor_id,
+                    text= "This account, {group}, can NOT add more users in looker.\nContracted Users: {contract_user_count}\nCurrent Looker Users: {looker_user_count}".format(group=group.title(), looker_user_count=looker_user_count, contract_user_count=contract_user_count)
+                )
+
+        elif contract_found == False:
+            looker_client.chat_postMessage(
+                channel=requestor_id,
+                text= "This account, {group}, does not have a contract in place with a number of users. Please contact your sales team and send a message to Support or Data to update our system.".format(group=group.title())
+            )
+
+        return make_response("", 200)
+
+
     else:
         return make_response("", 200)
 
