@@ -266,7 +266,7 @@ def shortcut():
                     print(contract_user_count)
 
             # The contract_user_count will ALWAYS be met since the contract found variable is true
-            if contract_user_count < looker_user_count:
+            if contract_user_count > looker_user_count:
                 looker_client.chat_postMessage(
                     channel=requestor_id,
                     text= "This account, {group}, can add more users in looker.\nContracted Users: {contract_user_count}\nCurrent Looker Users: {looker_user_count}".format(group=group.title(), looker_user_count=looker_user_count, contract_user_count=contract_user_count)
