@@ -280,7 +280,7 @@ def shortcut():
         elif contract_found == False:
             looker_client.chat_postMessage(
                 channel=requestor_id,
-                text= "This account, {group}, does not have a contract in place with a number of users. Please contact your sales team and send a message to Support or Data to update our system.".format(group=group.title())
+                text= "This account, {group}, does not have a contract in place with a number of users. Please contact your Sales & Finance team to get contracted seats. After, please contact the Data team to update the sheet.".format(group=group.title())
             )
 
         return make_response("", 200)
