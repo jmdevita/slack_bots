@@ -21,6 +21,7 @@ googlesheets_id = os.environ['SUPPORT_GOOGLESHEETS_ID']
 def step_1_import(event_ts, response_metadata, channel):
     # Added ability to have hyperlink to slack message, so when someone looks at the database, they can click on the question to shoot them to the question asked.
     user_question = re.sub(r'\<[^)]*\>', '', response_metadata["messages"][0]["text"]).lstrip()
+    user_question = user_question.replace('\"', '\'')
     url = 'https://wellhealth.slack.com/archives/'+ channel + "/p" + response_metadata["messages"][0]["ts"].replace(".","")
     user_question_link = '=HYPERLINK("{slack_link}", "{user_question}")'.format(slack_link = url, user_question = user_question)
 
