@@ -473,7 +473,48 @@ def interactive():
             support_client.chat_postMessage(
                 channel=payload['channel']['id'],
                 thread_ts = payload['container']['thread_ts'],
-                text = "No product owner was found for this feature."
+                text = "No product owner was found for this feature. If anyone has an answer please answer below!",
+                blocks = [
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": "No product owner was found for this feature. If anyone has an answer please answer below!"
+                        }
+                    ]
+                },
+                {
+                    "type": "divider"
+                },
+                {
+                    "type": "input",
+                    "block_id": "question_answer",
+                    "element": {
+                        "type": "plain_text_input",
+                        "multiline": True,
+                        "action_id": "plain_text_input-action"
+                    },
+                    "label": {
+                        "type": "plain_text",
+                        "text": "Answer"
+                    }
+                },
+                {
+                    "type": "actions",
+                    "elements": [
+                        {
+                            "type": "button",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "Submit"
+                            },
+                            "value": "submit-answer-2",
+                            "action_id": "actionID-found-answer-2"
+                        }
+                    ]
+                }
+            ]
             )
         return make_response("Pinged Owner", 200, {"X-Slack-No-Retry": 1})
 
