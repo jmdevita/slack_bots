@@ -341,7 +341,8 @@ def user_added():
         elif post_data['fail_reason'] == "No Contract Found" and not post_data['reset']:
             looker_client.chat_postMessage(
                 channel=post_data['slack_id'],
-                text= "ERROR: User -- {email} -- was not added to Looker. There is no contract found for this account, please contact the Finance team or provide the contract details to the Data team.".format(email=email)
+                text= "ERROR: User -- {email} -- was not added to Looker. There is no contract found for this account, please contact the Finance team or provide the contract details to the Data team.\
+                       If the customer does not have a looker license limit, please assign to the support queue to add customer user and @ Craig Wason and @ Jessica Edge in the internal feed, support will add the users via admin console".format(email=email)
             )
             return make_response("", 200)
         else:
