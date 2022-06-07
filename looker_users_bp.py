@@ -253,7 +253,7 @@ def shortcut():
         contract_found = False
         for row in contract_info_g:
             if group == row[0].lower(): # Compares group name to contract_info group name to grab looker seats
-                looker_user_count = int(row[2])
+                contract_user_count = int(row[2])
 
                 contract_found = True
         # This will read
@@ -262,11 +262,10 @@ def shortcut():
             looker_groups_g = googlesheets_read(googlesheets_id, "looker_groups!A2:D")
             for row in looker_groups_g:
                 if group == row[0].lower(): # Compares group name to looker_group name to grab seats
-                    contract_user_count = int(row[2])
-                    print(contract_user_count)
+                    looker_user_count = int(row[2])
 
             # The contract_user_count will ALWAYS be met since the contract found variable is true
-            if contract_user_count > looker_user_count:
+            if contract_user_count < looker_user_count:
                 looker_client.chat_postMessage(
                     channel=requestor_id,
                     text= "This account, {group}, can add more users in looker. Please use the other shortcut to add users.\nContracted Users: {contract_user_count}\nCurrent Looker Users: {looker_user_count}".format(group=group.title(), looker_user_count=looker_user_count, contract_user_count=contract_user_count)
