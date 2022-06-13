@@ -268,12 +268,12 @@ def shortcut():
             if contract_user_count < looker_user_count:
                 looker_client.chat_postMessage(
                     channel=requestor_id,
-                    text= "This account, {group}, can add more users in looker. Please use the other shortcut to add users.\nContracted Users: {contract_user_count}\nCurrent Looker Users: {looker_user_count}".format(group=group.title(), looker_user_count=looker_user_count, contract_user_count=contract_user_count)
+                    text= "This account, {group}, can NOT add more users in looker. Please use the other shortcut to add users.\nContracted Users: {contract_user_count}\nCurrent Looker Users: {looker_user_count}".format(group=group.title(), looker_user_count=looker_user_count, contract_user_count=contract_user_count)
                 )
             else:
                 looker_client.chat_postMessage(
                     channel=requestor_id,
-                    text= "This account, {group}, can NOT add more users in looker. Please contact and assign a ticket to the relevant CEM.\nContracted Users: {contract_user_count}\nCurrent Looker Users: {looker_user_count}".format(group=group.title(), looker_user_count=looker_user_count, contract_user_count=contract_user_count)
+                    text= "This account, {group}, can add more users in looker. Please contact and assign a ticket to the relevant CEM.\nContracted Users: {contract_user_count}\nCurrent Looker Users: {looker_user_count}".format(group=group.title(), looker_user_count=looker_user_count, contract_user_count=contract_user_count)
                 )
 
         elif contract_found == False:
