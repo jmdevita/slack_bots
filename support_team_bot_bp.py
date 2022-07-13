@@ -33,13 +33,13 @@ def step_1_response(event_channel, event_ts):
     support_client.chat_postMessage(
         channel=event_channel,
         thread_ts = event_ts,
-        text = "Hey There! Have you checked these resources?",
+        text = "Question Recorded! Have you checked these resources?",
         blocks = [
             {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": "Hey There! Have you checked: \n - The <https://knowledge.wellapp.com|KB Website>\n - In our <https://wellapp.atlassian.net/wiki/spaces/ProductDocs/pages|Confluence Product Page>\n - Our <https://docs.google.com/spreadsheets/d/1y100p75PowMlya0CrRd9_iVy7PId7FCqkyslMjljMII/edit?usp=sharing|Database of Questions>\n - In the Slack Search Bar?"
+                    "text": "Question Recorded! Have you checked: \n - The <https://knowledge.wellapp.com|KB Website>\n - In our <https://wellapp.atlassian.net/wiki/spaces/ProductDocs/pages|Confluence Product Page>\n - Our <https://docs.google.com/spreadsheets/d/1y100p75PowMlya0CrRd9_iVy7PId7FCqkyslMjljMII/edit?usp=sharing|Database of Questions>\n - In the Slack Search Bar?"
                 },
                 "accessory": {
                     "type": "button",
@@ -143,14 +143,14 @@ def interactive():
         support_client.chat_update(
             channel=payload['channel']['id'],
             ts=payload['container']['message_ts'],
-            text = "Hey there! Have you checked these resources?",
+            text = " Question Recorded! Have you checked these resources?",
             blocks = [
                 {
                     "type": "context",
                     "elements": [
                         {
                             "type": "mrkdwn",
-                            "text": "Hey there! Have you checked: \n - The <https://knowledge.wellapp.com|KB Website>\n - In our <https://wellapp.atlassian.net/wiki/spaces/ProductDocs/pages|Confluence Product Page>\n - In the Slack Search Bar?"
+                            "text": "Question Recorded! Have you checked: \n - The <https://knowledge.wellapp.com|KB Website>\n - In our <https://wellapp.atlassian.net/wiki/spaces/ProductDocs/pages|Confluence Product Page>\n - In the Slack Search Bar?"
                         }
                     ]
                 },
@@ -326,7 +326,7 @@ def interactive():
                     "elements": [
                         {
                             "type": "mrkdwn",
-                            "text": "Hey There! Have you checked: \n - The <https://knowledge.wellapp.com|KB Website>\n - In our <https://wellapp.atlassian.net/wiki/spaces/ProductDocs/pages|Confluence Product Page>\n - Our <https://docs.google.com/spreadsheets/d/1y100p75PowMlya0CrRd9_iVy7PId7FCqkyslMjljMII/edit?usp=sharing|Database of Questions>\n - In the Slack Search Bar?"
+                            "text": "Question Recorded! Have you checked: \n - The <https://knowledge.wellapp.com|KB Website>\n - In our <https://wellapp.atlassian.net/wiki/spaces/ProductDocs/pages|Confluence Product Page>\n - Our <https://docs.google.com/spreadsheets/d/1y100p75PowMlya0CrRd9_iVy7PId7FCqkyslMjljMII/edit?usp=sharing|Database of Questions>\n - In the Slack Search Bar?"
                         }
                     ]
                 },
